@@ -1,31 +1,19 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-
-function Home() {
-  return (
-    <div style={{ padding: "20px" }}>
-      <h1>Welcome to Opal Community 🚀</h1>
-      <p>This is your fresh Vite + React app.</p>
-      <Link to="/login">Go to Login</Link>
-    </div>
-  );
-}
-
-function Login() {
-  return (
-    <div style={{ padding: "20px" }}>
-      <h1>Login Page</h1>
-      <Link to="/">Back Home</Link>
-    </div>
-  );
-}
+import { useEffect, useState } from "react";
 
 export default function App() {
+  const [message, setMessage] = useState("Loading...");
+
+  useEffect(() => {
+    fetch("https://opal-community-zeta.onrender.com")
+      .then((res) => res.text())
+      .then((data) => setMessage(data))
+      .catch(() => setMessage("Failed to connect to backend"));
+  }, []);
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
-    </BrowserRouter>
+    <div style={{ padding: "20px" }}>
+      <h1>Frontend Connected to Backend</h1>
+      <p>{message}</p>
+    </div>
   );
 }
