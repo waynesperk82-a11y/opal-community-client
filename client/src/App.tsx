@@ -3,8 +3,7 @@ import Layout from "./components/Layout";
 
 import Home from "./pages/Home";
 import Ask from "./pages/Ask";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import About from "./pages/About";
 import QuestionDetails from "./pages/QuestionDetails";
 
 export default function App() {
@@ -12,14 +11,11 @@ export default function App() {
     <BrowserRouter>
       <Routes>
 
-        {/* Layout Wrapper */}
         <Route path="/" element={<Layout />}>
 
-          {/* Nested Routes */}
           <Route index element={<Home />} />
           <Route path="ask" element={<Ask />} />
-          <Route path="login" element={<Login />} />
-          <Route path="signup" element={<Signup />} />
+          <Route path="about" element={<About />} />
           <Route path="questions/:id" element={<QuestionDetails />} />
 
         </Route>
