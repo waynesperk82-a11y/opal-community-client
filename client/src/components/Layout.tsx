@@ -1,57 +1,34 @@
-import { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
+import { Outlet } from "react-router-dom";
 
-type Props = {
-  children: ReactNode;
-};
-
-export default function Layout({ children }: Props) {
+export default function Layout() {
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* Top Navbar */}
-      <nav className="bg-white shadow-md px-6 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-indigo-600">
-          Opal Zeta
-        </h1>
+      <Navbar />
 
-        <div className="space-x-6">
-          <Link to="/" className="text-gray-700 hover:text-indigo-600">
-            Home
-          </Link>
-          <Link to="/ask" className="text-gray-700 hover:text-indigo-600">
-            Ask
-          </Link>
-          <Link to="/login" className="text-gray-700 hover:text-indigo-600">
-            Login
-          </Link>
-        </div>
-      </nav>
-
-      {/* Main Layout Grid */}
-      <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6 mt-6 px-4">
+      <div className="flex max-w-7xl mx-auto">
 
         {/* Left Sidebar */}
-        <aside className="col-span-2 bg-white p-4 rounded-xl shadow">
-          <h2 className="font-semibold mb-4">Navigation</h2>
-          <ul className="space-y-2 text-sm">
-            <li><Link to="/" className="hover:text-indigo-600">All Questions</Link></li>
-            <li><Link to="/ask" className="hover:text-indigo-600">Ask Question</Link></li>
-            <li><Link to="/signup" className="hover:text-indigo-600">Sign Up</Link></li>
-          </ul>
-        </aside>
+        <Sidebar />
 
         {/* Main Content */}
-        <main className="col-span-7">
-          {children}
+        <main className="flex-1 p-8">
+          <Outlet />
         </main>
 
         {/* Right Panel */}
-        <aside className="col-span-3 bg-white p-4 rounded-xl shadow">
-          <h2 className="font-semibold mb-4">Trending</h2>
-          <p className="text-sm text-gray-500">
-            🔥 Most answered questions will appear here.
-          </p>
+        <aside className="w-64 hidden lg:block p-6">
+          <div className="bg-white p-4 rounded-xl shadow">
+            <h3 className="font-bold mb-4">Trending</h3>
+            <ul className="space-y-2 text-sm text-gray-600">
+              <li># React</li>
+              <li># Backend</li>
+              <li># AI</li>
+              <li># Startups</li>
+            </ul>
+          </div>
         </aside>
 
       </div>
