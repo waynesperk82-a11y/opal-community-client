@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Ask from "./pages/Ask";
 import About from "./pages/About";
 import QuestionDetails from "./pages/QuestionDetails";
+import Profile from "./pages/Profile";   // 
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="ask" element={<Ask />} />
           <Route path="about" element={<About />} />
           <Route path="questions/:id" element={<QuestionDetails />} />
+          <Route path="profile" element={<Profile />} />  {/* 👈 ADD THIS */}
 
         </Route>
 
@@ -23,4 +25,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-
