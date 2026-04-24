@@ -32,9 +32,13 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-gray-800">
             Community Questions
           </h2>
-          <button className="bg-indigo-600 text-white px-5 py-2 rounded-xl hover:bg-indigo-700 transition">
-            Ask Question
-          </button>
+          import { Link } from "react-router-dom";
+          <Link
+  to="/ask"
+  className="bg-indigo-600 text-white px-5 py-2 rounded-xl hover:bg-indigo-700 transition"
+>
+  Ask Question
+</Link>
         </div>
 
         {loading ? (
