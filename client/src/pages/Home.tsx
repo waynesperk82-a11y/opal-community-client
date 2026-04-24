@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 type Question = {
   id: number;
@@ -32,13 +33,13 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-gray-800">
             Community Questions
           </h2>
-          import { Link } from "react-router-dom";
+
           <Link
-  to="/ask"
-  className="bg-indigo-600 text-white px-5 py-2 rounded-xl hover:bg-indigo-700 transition"
->
-  Ask Question
-</Link>
+            to="/ask"
+            className="bg-indigo-600 text-white px-5 py-2 rounded-xl hover:bg-indigo-700 transition"
+          >
+            Ask Question
+          </Link>
         </div>
 
         {loading ? (
