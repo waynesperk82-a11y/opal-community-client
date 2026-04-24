@@ -5,13 +5,14 @@ type Question = {
   id: number;
   title: string;
   author: string;
-  image?: string; // 
+  image?: string;
   answers: any[];
 };
 
 export default function Home() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("https://opal-community-zeta.onrender.com/questions")
@@ -26,7 +27,7 @@ export default function Home() {
   return (
     <div>
 
-      {/* HEADER SECTION */}
+      {/* HEADER */}
       <div className="flex justify-between items-center mb-10">
         <h2 className="text-4xl font-bold tracking-tight">
           Explore Community Questions
@@ -57,12 +58,13 @@ export default function Home() {
                 {q.title}
               </Link>
 
-              {/* 👇 IMAGE DISPLAY */}
+              {/* IMAGE */}
               {q.image && (
                 <img
                   src={q.image}
                   alt="Question"
-                  className="mt-4 w-full max-h-64 object-cover rounded-2xl border border-white/10"
+                  onClick={() => setSelectedImage(q.image!)}
+                  className="mt-4 w-full max-h-64 object-cover rounded-2xl border border-white/10 cursor-pointer hover:scale-105 transition"
                 />
               )}
 
@@ -75,6 +77,20 @@ export default function Home() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* FULLSCREEN MODAL */}
+      {selectedImage && (
+        <div
+          onClick={() => setSelectedImage(null)}
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn"
+        >
+          <img
+            src={selectedImage}
+            alt="Fullscreen"
+            className="max-w-[90%] max-h-[90%] rounded-2xl shadow-2xl"
+          />
         </div>
       )}
     </div>
