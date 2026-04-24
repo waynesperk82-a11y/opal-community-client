@@ -10,19 +10,21 @@ export default function Navbar() {
         </Link>
 
         <div className="flex gap-4">
+
           <Link
             to="/ask"
             className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
           >
-            Ask
+            Ask Question
           </Link>
 
           <Link
-            to="/login"
+            to="/about"
             className="px-4 py-2 border rounded-lg hover:bg-gray-100 transition"
           >
-            Login
+            About
           </Link>
+
         </div>
 
       </div>
