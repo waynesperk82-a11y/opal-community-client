@@ -2,22 +2,22 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Ask() {
+  const navigate = useNavigate();
+
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [image, setImage] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
+    reader.readAsDataURL(file);
 
-    reader.onloadend = () => {
+    reader.onload = () => {
       setImage(reader.result as string);
     };
-
-    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,25 +39,29 @@ export default function Ask() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg">
-      <h2 className="text-2xl font-bold mb-6">Ask a Question</h2>
+    <div className="max-w-3xl mx-auto bg-white/10 backdrop-blur-xl p-8 rounded-3xl shadow-xl">
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <h2 className="text-3xl font-bold text-white mb-6">
+        Ask a Question
+      </h2>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
 
         <input
           type="text"
           placeholder="Your Name"
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
-          className="w-full p-3 rounded-lg border dark:bg-slate-700"
+          className="w-full p-3 rounded-xl bg-white/20 text-white placeholder-gray-300"
           required
         />
 
-        <textarea
-          placeholder="What is your question?"
+        <input
+          type="text"
+          placeholder="Question Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-3 rounded-lg border dark:bg-slate-700"
+          className="w-full p-3 rounded-xl bg-white/20 text-white placeholder-gray-300"
           required
         />
 
@@ -65,19 +69,20 @@ export default function Ask() {
           type="file"
           accept="image/*"
           onChange={handleImageUpload}
+          className="text-white"
         />
 
         {image && (
           <img
             src={image}
             alt="Preview"
-            className="w-40 rounded-lg mt-4"
+            className="mt-4 rounded-2xl max-h-60"
           />
         )}
 
         <button
           type="submit"
-          className="bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700 transition"
+          className="bg-gradient-to-r from-indigo-500 to-pink-500 px-6 py-3 rounded-xl font-semibold hover:scale-105 transition-transform"
         >
           Post Question
         </button>
