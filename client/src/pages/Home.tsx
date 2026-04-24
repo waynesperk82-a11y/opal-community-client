@@ -19,52 +19,54 @@ export default function Home() {
         setQuestions(data);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error("Error fetching questions:", err);
-        setLoading(false);
-      });
+      .catch(() => setLoading(false));
   }, []);
 
   return (
-    <div className="bg-gray-100 min-h-screen py-10 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-800">
-            Community Questions
-          </h2>
+    <div>
 
-          <Link
-            to="/ask"
-            className="bg-indigo-600 text-white px-5 py-2 rounded-xl hover:bg-indigo-700 transition"
-          >
-            Ask Question
-          </Link>
-        </div>
+      {/* HEADER SECTION */}
+      <div className="flex justify-between items-center mb-10">
+        <h2 className="text-4xl font-bold tracking-tight">
+          Explore Community Questions
+        </h2>
 
-        {loading ? (
-          <p className="text-gray-600">Loading questions...</p>
-        ) : (
-          <div className="space-y-6">
-            {questions.map((q) => (
-              <div
-                key={q.id}
-                className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition"
-              >
-                <Link
-                  to={`/questions/${q.id}`}
-                  className="text-xl font-semibold text-indigo-600 hover:underline"
-                >
-                  {q.title}
-                </Link>
-
-                <p className="text-sm text-gray-500 mt-2">
-                  Asked by {q.author} • {q.answers.length} answers
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
+        <Link
+          to="/ask"
+          className="px-6 py-3 rounded-2xl bg-gradient-to-r from-indigo-500 to-pink-500 font-semibold shadow-lg hover:scale-105 transition-transform"
+        >
+          + Ask Question
+        </Link>
       </div>
+
+      {/* QUESTIONS */}
+      {loading ? (
+        <p className="text-gray-300 animate-pulse">Loading questions...</p>
+      ) : (
+        <div className="grid md:grid-cols-2 gap-6">
+          {questions.map((q) => (
+            <div
+              key={q.id}
+              className="bg-white/10 backdrop-blur-lg border border-white/10 p-6 rounded-3xl shadow-xl hover:shadow-indigo-500/20 hover:-translate-y-1 transition-all duration-300"
+            >
+              <Link
+                to={`/questions/${q.id}`}
+                className="text-xl font-semibold text-indigo-300 hover:text-pink-300 transition"
+              >
+                {q.title}
+              </Link>
+
+              <p className="text-sm text-gray-300 mt-3">
+                Asked by <span className="font-medium">{q.author}</span>
+              </p>
+
+              <div className="mt-4 text-xs text-gray-400">
+                {q.answers.length} Answers
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
