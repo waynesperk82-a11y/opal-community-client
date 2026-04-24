@@ -21,39 +21,37 @@ export default function Ask() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-lg"
-      >
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">
-          Ask a Question
-        </h2>
+    <div className="bg-white p-8 rounded-2xl shadow max-w-2xl mx-auto">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">
+        Ask a Question
+      </h2>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
 
         <input
           type="text"
-          placeholder="Your Name"
+          placeholder="Your name"
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
+          className="w-full border p-3 rounded-lg"
           required
-          className="w-full p-3 mb-4 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
 
         <textarea
-          placeholder="What is your question?"
+          placeholder="Your question..."
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          className="w-full border p-3 rounded-lg"
           required
-          rows={4}
-          className="w-full p-3 mb-6 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
 
         <button
           type="submit"
-          className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition"
+          className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700"
         >
           Post Question
         </button>
+
       </form>
     </div>
   );
