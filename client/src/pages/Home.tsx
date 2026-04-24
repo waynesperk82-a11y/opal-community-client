@@ -81,16 +81,30 @@ export default function Home() {
       )}
 
       {/* FULLSCREEN MODAL */}
-      {selectedImage && (
-        <div
-          onClick={() => setSelectedImage(null)}
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn"
-        >
-          <img
-            src={selectedImage}
-            alt="Fullscreen"
-            className="max-w-[90%] max-h-[90%] rounded-2xl shadow-2xl"
-          />
+{selectedImage && (
+  <div
+    onClick={() => setSelectedImage(null)}
+    className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50"
+  >
+    {/* IMAGE CONTAINER */}
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="relative"
+    >
+      {/* CLOSE BUTTON */}
+      <button
+        onClick={() => setSelectedImage(null)}
+        className="absolute -top-4 -right-4 bg-white text-black w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition"
+      >
+        ✕
+      </button>
+
+      {/* IMAGE */}
+      <img
+        src={selectedImage}
+        alt="Fullscreen"
+        className="max-w-[90vw] max-h-[85vh] rounded-2xl shadow-2xl"
+      />
         </div>
       )}
     </div>
