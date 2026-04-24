@@ -32,6 +32,19 @@ export default function Layout() {
         </aside>
 
       </div>
+      <footer className="bg-white border-t mt-10">
+  <div className="max-w-7xl mx-auto px-6 py-6 text-center text-sm text-gray-600">
+    © {new Date().getFullYear()} Opal Zeta. All rights reserved.
+    <br />
+    Contact:{" "}
+    <a
+      href="mailto:opalzeta172@gmail.com"
+      className="text-indigo-600 hover:underline"
+    >
+      opalzeta172@gmail.com
+    </a>
+  </div>
+</footer>
     </div>
   );
 }
