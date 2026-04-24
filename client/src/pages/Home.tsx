@@ -5,6 +5,7 @@ type Question = {
   id: number;
   title: string;
   author: string;
+  image?: string; // 
   answers: any[];
 };
 
@@ -55,6 +56,15 @@ export default function Home() {
               >
                 {q.title}
               </Link>
+
+              {/* 👇 IMAGE DISPLAY */}
+              {q.image && (
+                <img
+                  src={q.image}
+                  alt="Question"
+                  className="mt-4 w-full max-h-64 object-cover rounded-2xl border border-white/10"
+                />
+              )}
 
               <p className="text-sm text-gray-300 mt-3">
                 Asked by <span className="font-medium">{q.author}</span>
