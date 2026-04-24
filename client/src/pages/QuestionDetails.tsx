@@ -86,15 +86,13 @@ export default function QuestionDetails() {
           Asked by {question.author}
         </p>
 
-        {/* IMAGE */}
+        {/* IMAGE (BASE64 SAFE) */}
         {question.image && (
           <img
-            src={`https://opal-community-zeta.onrender.com${question.image}`}
+            src={question.image}
             alt="Question"
             onClick={() => {
-              setSelectedImage(
-                `https://opal-community-zeta.onrender.com${question.image}`
-              );
+              setSelectedImage(question.image!);
               setZoomed(false);
             }}
             className="mt-6 rounded-2xl cursor-pointer hover:scale-105 transition-transform duration-300"
@@ -167,7 +165,7 @@ export default function QuestionDetails() {
           {/* CLOSE BUTTON */}
           <button
             onClick={() => setSelectedImage(null)}
-            className="absolute top-6 right-6 text-white text-4xl font-bold"
+            className="absolute top-6 right-6 text-white text-4xl font-bold hover:text-red-400 transition"
           >
             ✕
           </button>
@@ -177,8 +175,8 @@ export default function QuestionDetails() {
             src={selectedImage}
             alt="Full"
             onClick={() => setZoomed(!zoomed)}
-            className={`max-h-[90%] max-w-[90%] rounded-3xl cursor-pointer transition-transform duration-300 ${
-              zoomed ? "scale-125" : "scale-100"
+            className={`max-h-[90%] max-w-[90%] rounded-3xl cursor-zoom-in transition-transform duration-300 ${
+              zoomed ? "scale-125 cursor-zoom-out" : "scale-100"
             }`}
           />
 
