@@ -28,7 +28,6 @@ export default function Home() {
   return (
     <div className="bg-gray-100 min-h-screen py-10 px-4">
       <div className="max-w-4xl mx-auto">
-
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold text-gray-800">
             Community Questions
@@ -51,9 +50,13 @@ export default function Home() {
                 key={q.id}
                 className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition"
               >
-                <h3 className="text-xl font-semibold text-gray-900">
+                <Link
+                  to={`/questions/${q.id}`}
+                  className="text-xl font-semibold text-indigo-600 hover:underline"
+                >
                   {q.title}
-                </h3>
+                </Link>
+
                 <p className="text-sm text-gray-500 mt-2">
                   Asked by {q.author} • {q.answers.length} answers
                 </p>
@@ -61,7 +64,6 @@ export default function Home() {
             ))}
           </div>
         )}
-
       </div>
     </div>
   );
