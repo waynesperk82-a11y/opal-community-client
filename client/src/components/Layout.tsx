@@ -1,27 +1,52 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function Layout() {
   const [dark, setDark] = useState(true);
   const [username] = useState("Opal User");
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+
   const navigate = useNavigate();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  /* ---------------- LOAD SETTINGS ---------------- */
 
   useEffect(() => {
     const savedImage = localStorage.getItem("profileImage");
-    if (savedImage) {
-      setProfileImage(savedImage);
-    }
+    const savedTheme = localStorage.getItem("theme");
+
+    if (savedImage) setProfileImage(savedImage);
+    if (savedTheme === "light") setDark(false);
   }, []);
+
+  /* ---------------- DARK MODE ---------------- */
 
   useEffect(() => {
     if (dark) {
       document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
     } else {
       document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
     }
   }, [dark]);
+
+  /* ---------------- CLOSE DROPDOWN ON OUTSIDE CLICK ---------------- */
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const initials = username
     .split(" ")
@@ -37,9 +62,11 @@ export default function Layout() {
   };
 
   const navStyle = ({ isActive }: { isActive: boolean }) =>
-    isActive
-      ? "text-indigo-500 font-semibold"
-      : "hover:text-indigo-400 transition";
+    `relative px-2 py-1 transition ${
+      isActive
+        ? "text-indigo-500 font-semibold after:absolute after:-bottom-1 after:left-0 after:w-full after:h-[2px] after:bg-gradient-to-r after:from-indigo-500 after:to-pink-500"
+        : "hover:text-indigo-400"
+    }`;
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gradient-to-br dark:from-slate-900 dark:via-indigo-900 dark:to-slate-800 text-gray-900 dark:text-white transition-colors duration-500">
@@ -56,7 +83,7 @@ export default function Layout() {
             Opal Zeta
           </NavLink>
 
-          {/* NAV LINKS */}
+          {/* NAVIGATION */}
           <nav className="flex items-center gap-8 text-sm font-medium relative">
 
             <NavLink to="/" className={navStyle}>
@@ -71,7 +98,7 @@ export default function Layout() {
               About
             </NavLink>
 
-            {/* DARK MODE */}
+            {/* DARK MODE BUTTON */}
             <button
               onClick={() => setDark(!dark)}
               className="px-3 py-2 rounded-xl bg-indigo-500 text-white hover:bg-indigo-600 transition text-xs shadow-md"
@@ -79,8 +106,8 @@ export default function Layout() {
               {dark ? "☀ Light" : "🌙 Dark"}
             </button>
 
-            {/* PROFILE AVATAR */}
-            <div className="relative">
+            {/* PROFILE */}
+            <div className="relative" ref={dropdownRef}>
 
               <div
                 onClick={() => setMenuOpen(!menuOpen)}
@@ -101,19 +128,20 @@ export default function Layout() {
 
               {/* DROPDOWN */}
               {menuOpen && (
-                <div className="absolute right-0 mt-3 w-40 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-200 dark:border-white/10 overflow-hidden animate-fade-in">
+                <div className="absolute right-0 mt-3 w-44 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                   <button
                     onClick={() => {
                       navigate("/profile");
                       setMenuOpen(false);
                     }}
-                    className="w-full text-left px-4 py-2 hover:bg-indigo-500 hover:text-white transition"
+                    className="w-full text-left px-4 py-3 hover:bg-indigo-500 hover:text-white transition"
                   >
                     Profile
                   </button>
+
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 hover:bg-red-500 hover:text-white transition"
+                    className="w-full text-left px-4 py-3 hover:bg-red-500 hover:text-white transition"
                   >
                     Logout
                   </button>
@@ -126,7 +154,7 @@ export default function Layout() {
         </div>
       </header>
 
-      {/* MAIN CONTENT */}
+      {/* MAIN */}
       <main className="flex-grow max-w-6xl mx-auto px-6 py-10 w-full">
         <Outlet context={{ setProfileImage }} />
       </main>
@@ -148,4 +176,4 @@ export default function Layout() {
 
     </div>
   );
-          }        
+      }
