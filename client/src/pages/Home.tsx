@@ -1,165 +1,120 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { API_URL } from "../config";
 
-type Question = {
+interface Answer {
+  author: string;
+  content: string;
+}
+
+interface Question {
   _id: string;
   title: string;
   author: string;
   image?: string;
-  answers: any[];
-};
+  likes: number;
+  views: number;
+  answers: Answer[];
+  createdAt: string;
+}
 
 export default function Home() {
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
+  /* ---------------- FETCH QUESTIONS ---------------- */
+
   useEffect(() => {
-    fetch(`${API_URL}/questions`)
+    fetch("http://localhost:5000/questions")
       .then((res) => res.json())
-      .then((data) => {
-        setQuestions(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      .then((data) => setQuestions(data))
+      .catch((err) => console.error(err));
   }, []);
 
-  const filteredQuestions = useMemo(() => {
-    return questions.filter((q) =>
-      q.title.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [questions, search]);
+  /* ---------------- FILTERED ---------------- */
 
-  const totalAnswers = questions.reduce(
-    (acc, q) => acc + q.answers.length,
-    0
+  const filtered = questions.filter((q) =>
+    q.title.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-10">
 
       {/* HERO SECTION */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-12 shadow-2xl">
-        <div className="relative z-10 text-white max-w-2xl">
-          <h1 className="text-5xl font-bold leading-tight">
-            Welcome to Opal Zeta Community
-          </h1>
-          <p className="mt-4 text-lg opacity-90">
-            Ask questions. Share knowledge. Grow together.
-          </p>
+      <section className="text-center py-10">
+        <h1 className="text-4xl font-extrabold mb-4 bg-gradient-to-r from-indigo-500 to-pink-500 bg-clip-text text-transparent">
+          Welcome to Opal Zeta
+        </h1>
+        <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
+          Ask questions. Share knowledge. Explore trending discussions.
+        </p>
+      </section>
 
-          <Link
-            to="/ask"
-            className="inline-block mt-6 px-8 py-3 bg-white text-black font-semibold rounded-2xl shadow-lg hover:scale-105 transition"
-          >
-            Ask Your First Question
-          </Link>
-        </div>
-
-        {/* Background blur circles */}
-        <div className="absolute -top-20 -right-20 w-72 h-72 bg-white/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-pink-400/30 rounded-full blur-3xl"></div>
-      </div>
-
-      {/* STATS */}
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="bg-white/10 backdrop-blur-lg p-6 rounded-3xl border border-white/10 text-center shadow-lg">
-          <h3 className="text-3xl font-bold text-indigo-400">
-            {questions.length}
-          </h3>
-          <p className="text-gray-300 mt-2">Total Questions</p>
-        </div>
-
-        <div className="bg-white/10 backdrop-blur-lg p-6 rounded-3xl border border-white/10 text-center shadow-lg">
-          <h3 className="text-3xl font-bold text-pink-400">
-            {totalAnswers}
-          </h3>
-          <p className="text-gray-300 mt-2">Total Answers</p>
-        </div>
-
-        <div className="bg-white/10 backdrop-blur-lg p-6 rounded-3xl border border-white/10 text-center shadow-lg">
-          <h3 className="text-3xl font-bold text-purple-400">
-            {filteredQuestions.length}
-          </h3>
-          <p className="text-gray-300 mt-2">Search Results</p>
-        </div>
-      </div>
-
-      {/* SEARCH BAR */}
-      <div className="max-w-xl mx-auto">
+      {/* SEARCH */}
+      <div className="flex justify-center">
         <input
           type="text"
-          placeholder="Search questions..."
+          placeholder="🔍 Search questions..."
+          className="w-full max-w-2xl px-4 py-3 rounded-xl border dark:bg-slate-800 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 outline-none transition"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-white/10 backdrop-blur-lg border border-white/10 text-white p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 shadow-lg"
         />
       </div>
 
-      {/* QUESTIONS GRID */}
-      {loading ? (
-        <p className="text-gray-300 animate-pulse text-center">
-          Loading questions...
-        </p>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredQuestions.map((q) => (
-            <div
-              key={q._id}
-              className="group bg-white/10 backdrop-blur-xl border border-white/10 p-6 rounded-3xl shadow-xl hover:-translate-y-2 hover:shadow-indigo-500/20 transition-all duration-300"
-            >
-              <Link
-                to={`/questions/${q._id}`}
-                className="text-xl font-semibold text-indigo-300 group-hover:text-pink-300 transition"
-              >
-                {q.title}
-              </Link>
+      {/* QUESTIONS LIST */}
+      <div className="grid gap-6">
 
-              {q.image && (
-                <img
-                  src={q.image}
-                  alt="Question"
-                  onClick={() => setSelectedImage(q.image!)}
-                  className="mt-4 w-full h-48 object-cover rounded-2xl border border-white/10 cursor-pointer hover:scale-105 transition"
-                />
-              )}
-
-              <div className="flex justify-between items-center mt-4 text-sm text-gray-300">
-                <span>By {q.author}</span>
-                <span>{q.answers.length} Answers</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* FULLSCREEN MODAL */}
-      {selectedImage && (
-        <div
-          onClick={() => setSelectedImage(null)}
-          className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative"
-          >
-            <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute -top-4 -right-4 bg-white text-black w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition"
-            >
-              ✕
-            </button>
-
-            <img
-              src={selectedImage}
-              alt="Fullscreen"
-              className="max-w-[90vw] max-h-[85vh] rounded-2xl shadow-2xl"
-            />
+        {filtered.length === 0 && (
+          <div className="text-center text-gray-400 py-20">
+            No questions found.
           </div>
-        </div>
-      )}
+        )}
+
+        {filtered.map((q) => (
+          <Link
+            key={q._id}
+            to={`/questions/${q._id}`}
+            className="group block p-6 rounded-2xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-white/10 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+          >
+
+            {/* Title */}
+            <div className="flex justify-between items-start mb-3">
+              <h2 className="text-lg font-semibold group-hover:text-indigo-500 transition">
+                {q.title}
+              </h2>
+
+              {q.likes > 5 && (
+                <span className="text-xs bg-pink-500 text-white px-2 py-1 rounded-full">
+                  🔥 Trending
+                </span>
+              )}
+            </div>
+
+            {/* Image */}
+            {q.image && (
+              <img
+                src={q.image}
+                alt=""
+                className="w-full max-h-60 object-cover rounded-xl mb-4"
+              />
+            )}
+
+            {/* Meta Info */}
+            <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
+
+              <div className="flex gap-4">
+                <span>❤️ {q.likes}</span>
+                <span>👁 {q.views}</span>
+                <span>💬 {q.answers.length}</span>
+              </div>
+
+              <span>by {q.author}</span>
+
+            </div>
+
+          </Link>
+        ))}
+      </div>
+
     </div>
   );
-      }                  
+            }
