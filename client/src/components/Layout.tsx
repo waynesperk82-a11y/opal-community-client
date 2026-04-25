@@ -1,20 +1,38 @@
-import { NavLink, Outlet, useNavigate, Navigate } from "react-router-dom";
+import {
+  NavLink,
+  Outlet,
+  useNavigate,
+  Navigate,
+} from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 
 export default function Layout() {
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  /* ---------------- AUTH ---------------- */
+  /* ---------------- AUTH STATE ---------------- */
 
-  const storedUsername = localStorage.getItem("username");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [username, setUsername] = useState<string>("");
 
-  // 🔐 Redirect if not logged in
-  if (!storedUsername) {
-    return <Navigate to="/login" replace />;
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+
+    if (storedUsername) {
+      setUsername(storedUsername);
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+    }
+  }, []);
+
+  if (isAuthenticated === null) {
+    return null; // prevents flashing before auth check
   }
 
-  const username = storedUsername;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
   /* ---------------- STATE ---------------- */
 
@@ -57,7 +75,8 @@ export default function Layout() {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   /* ---------------- USER INITIALS ---------------- */
@@ -193,4 +212,4 @@ export default function Layout() {
 
     </div>
   );
-    }                      
+    }
