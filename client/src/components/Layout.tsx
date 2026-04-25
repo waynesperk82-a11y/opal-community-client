@@ -1,14 +1,26 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, Navigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 
 export default function Layout() {
-  const [dark, setDark] = useState(true);
-  const [username] = useState("Opal User");
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  /* ---------------- AUTH ---------------- */
+
+  const storedUsername = localStorage.getItem("username");
+
+  // 🔐 Redirect if not logged in
+  if (!storedUsername) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const username = storedUsername;
+
+  /* ---------------- STATE ---------------- */
+
+  const [dark, setDark] = useState(true);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   /* ---------------- LOAD SETTINGS ---------------- */
 
@@ -32,7 +44,7 @@ export default function Layout() {
     }
   }, [dark]);
 
-  /* ---------------- CLOSE DROPDOWN ON OUTSIDE CLICK ---------------- */
+  /* ---------------- CLOSE DROPDOWN ---------------- */
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -48,18 +60,25 @@ export default function Layout() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  /* ---------------- USER INITIALS ---------------- */
+
   const initials = username
     .split(" ")
     .map((word) => word[0])
     .join("")
     .toUpperCase();
 
+  /* ---------------- LOGOUT ---------------- */
+
   const handleLogout = () => {
+    localStorage.removeItem("username");
     localStorage.removeItem("profileImage");
     setProfileImage(null);
     setMenuOpen(false);
-    navigate("/");
+    navigate("/login");
   };
+
+  /* ---------------- NAV STYLE ---------------- */
 
   const navStyle = ({ isActive }: { isActive: boolean }) =>
     `relative px-2 py-1 transition ${
@@ -98,7 +117,7 @@ export default function Layout() {
               About
             </NavLink>
 
-            {/* DARK MODE BUTTON */}
+            {/* DARK MODE */}
             <button
               onClick={() => setDark(!dark)}
               className="px-3 py-2 rounded-xl bg-indigo-500 text-white hover:bg-indigo-600 transition text-xs shadow-md"
@@ -108,7 +127,6 @@ export default function Layout() {
 
             {/* PROFILE */}
             <div className="relative" ref={dropdownRef}>
-
               <div
                 onClick={() => setMenuOpen(!menuOpen)}
                 className="cursor-pointer"
@@ -128,7 +146,7 @@ export default function Layout() {
 
               {/* DROPDOWN */}
               {menuOpen && (
-                <div className="absolute right-0 mt-3 w-44 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute right-0 mt-3 w-44 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden">
                   <button
                     onClick={() => {
                       navigate("/profile");
@@ -147,7 +165,6 @@ export default function Layout() {
                   </button>
                 </div>
               )}
-
             </div>
 
           </nav>
@@ -176,4 +193,4 @@ export default function Layout() {
 
     </div>
   );
-      }
+    }                      
