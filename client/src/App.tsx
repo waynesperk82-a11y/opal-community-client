@@ -5,6 +5,7 @@ import Ask from "./pages/Ask";
 import About from "./pages/About";
 import QuestionDetails from "./pages/QuestionDetails";
 import Profile from "./pages/Profile";
+import Login from "./pages/Login"; // ✅ ADD THIS
 
 function NotFound() {
   return (
@@ -19,6 +20,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+
+        {/* ✅ LOGIN ROUTE (Outside Layout) */}
+        <Route path="/login" element={<Login />} />
+
+        {/* ✅ PROTECTED ROUTES */}
         <Route path="/" element={<Layout />}>
 
           {/* Main Pages */}
@@ -27,13 +33,14 @@ export default function App() {
           <Route path="about" element={<About />} />
           <Route path="profile" element={<Profile />} />
 
-          {/* Question Details (MongoDB _id based) */}
+          {/* Question Details */}
           <Route path="questions/:id" element={<QuestionDetails />} />
 
           {/* 404 Catch All */}
           <Route path="*" element={<NotFound />} />
 
         </Route>
+
       </Routes>
     </BrowserRouter>
   );
