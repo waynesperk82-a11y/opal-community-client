@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 type Answer = {
-  id: number;
+  _id?: string;
   author: string;
   content: string;
 };
 
 type Question = {
-  id: number;
+  _id: string;
   title: string;
   author: string;
   image?: string;
@@ -66,27 +66,37 @@ export default function QuestionDetails() {
   };
 
   if (loading) {
-    return <p className="text-gray-400">Loading question...</p>;
+    return (
+      <div className="text-center text-gray-400 animate-pulse">
+        Loading question...
+      </div>
+    );
   }
 
   if (!question) {
-    return <p className="text-red-500">Question not found</p>;
+    return <p className="text-red-500 text-center">Question not found</p>;
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-10">
+    <div className="max-w-5xl mx-auto space-y-14">
 
-      {/* QUESTION CARD */}
-      <div className="bg-white/10 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-xl">
-        <h2 className="text-3xl font-bold text-white">
+      {/* HERO QUESTION SECTION */}
+      <div className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-10 rounded-3xl shadow-2xl text-white overflow-hidden">
+
+        <h2 className="text-4xl font-bold leading-tight">
           {question.title}
         </h2>
 
-        <p className="text-sm text-gray-300 mt-3">
-          Asked by {question.author}
-        </p>
+        <div className="flex items-center justify-between mt-6">
+          <p className="text-white/80">
+            Asked by <span className="font-semibold">{question.author}</span>
+          </p>
 
-        {/* IMAGE (BASE64 SAFE) */}
+          <span className="bg-white/20 px-4 py-1 rounded-full text-sm backdrop-blur">
+            {question.answers.length} Answers
+          </span>
+        </div>
+
         {question.image && (
           <img
             src={question.image}
@@ -95,47 +105,55 @@ export default function QuestionDetails() {
               setSelectedImage(question.image!);
               setZoomed(false);
             }}
-            className="mt-6 rounded-2xl cursor-pointer hover:scale-105 transition-transform duration-300"
+            className="mt-8 rounded-3xl shadow-xl cursor-pointer hover:scale-105 transition-transform duration-300 max-h-[400px] object-cover"
           />
         )}
+
+        <div className="absolute -top-16 -right-16 w-64 h-64 bg-white/20 rounded-full blur-3xl"></div>
       </div>
 
-      {/* ANSWERS */}
-      <div className="bg-white/10 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-xl">
-        <h3 className="text-xl font-semibold text-white mb-6">
-          {question.answers.length} Answers
+      {/* ANSWERS SECTION */}
+      <div className="space-y-8">
+        <h3 className="text-2xl font-semibold text-white">
+          Community Answers
         </h3>
 
         {question.answers.length === 0 && (
-          <p className="text-gray-400">No answers yet. Be the first!</p>
+          <div className="bg-white/10 backdrop-blur-lg p-6 rounded-3xl border border-white/10 text-gray-400 text-center">
+            No answers yet. Be the first to respond!
+          </div>
         )}
 
-        <div className="space-y-6">
-          {question.answers.map((answer) => (
-            <div key={answer.id} className="border-b border-white/10 pb-4">
-              <p className="text-gray-200">{answer.content}</p>
-              <p className="text-sm text-gray-400 mt-2">
-                — {answer.author}
-              </p>
+        {question.answers.map((answer, index) => (
+          <div
+            key={answer._id || index}
+            className="bg-white/10 backdrop-blur-xl border border-white/10 p-6 rounded-3xl shadow-lg hover:shadow-indigo-500/20 transition"
+          >
+            <p className="text-gray-200 leading-relaxed">
+              {answer.content}
+            </p>
+
+            <div className="mt-4 text-sm text-gray-400">
+              — {answer.author}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
 
-      {/* ADD ANSWER */}
-      <div className="bg-white/10 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-xl">
-        <h3 className="text-xl font-semibold text-white mb-6">
+      {/* SUBMIT ANSWER */}
+      <div className="bg-white/10 backdrop-blur-xl border border-white/10 p-10 rounded-3xl shadow-xl">
+        <h3 className="text-2xl font-semibold text-white mb-6">
           Submit Your Answer
         </h3>
 
-        <form onSubmit={handleAnswerSubmit} className="space-y-4">
+        <form onSubmit={handleAnswerSubmit} className="space-y-6">
 
           <input
             type="text"
             placeholder="Your name"
             value={answerAuthor}
             onChange={(e) => setAnswerAuthor(e.target.value)}
-            className="w-full bg-white/20 text-white placeholder-gray-300 p-3 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full bg-white/20 text-white placeholder-gray-300 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500"
             required
           />
 
@@ -143,14 +161,14 @@ export default function QuestionDetails() {
             placeholder="Write your answer..."
             value={answerContent}
             onChange={(e) => setAnswerContent(e.target.value)}
-            className="w-full bg-white/20 text-white placeholder-gray-300 p-3 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
-            rows={4}
+            className="w-full bg-white/20 text-white placeholder-gray-300 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500"
+            rows={5}
             required
           />
 
           <button
             type="submit"
-            className="bg-gradient-to-r from-indigo-500 to-pink-500 px-6 py-2 rounded-xl font-semibold hover:scale-105 transition-transform"
+            className="bg-gradient-to-r from-indigo-500 to-pink-500 px-8 py-3 rounded-2xl font-semibold hover:scale-105 transition-transform shadow-lg"
           >
             Post Answer
           </button>
@@ -162,7 +180,6 @@ export default function QuestionDetails() {
       {selectedImage && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
 
-          {/* CLOSE BUTTON */}
           <button
             onClick={() => setSelectedImage(null)}
             className="absolute top-6 right-6 text-white text-4xl font-bold hover:text-red-400 transition"
@@ -170,7 +187,6 @@ export default function QuestionDetails() {
             ✕
           </button>
 
-          {/* IMAGE WITH ZOOM */}
           <img
             src={selectedImage}
             alt="Full"
@@ -182,7 +198,6 @@ export default function QuestionDetails() {
 
         </div>
       )}
-
     </div>
   );
-}
+          }                
