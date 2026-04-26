@@ -1,11 +1,11 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Ask from "./pages/Ask";
 import About from "./pages/About";
 import QuestionDetails from "./pages/QuestionDetails";
 import Profile from "./pages/Profile";
-import Login from "./pages/Login"; // ✅ ADD THIS
+import Login from "./pages/Login";
 
 function NotFound() {
   return (
@@ -18,30 +18,23 @@ function NotFound() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+    <Routes>
 
-        {/* ✅ LOGIN ROUTE (Outside Layout) */}
-        <Route path="/login" element={<Login />} />
+      {/* LOGIN ROUTE */}
+      <Route path="/login" element={<Login />} />
 
-        {/* ✅ PROTECTED ROUTES */}
-        <Route path="/" element={<Layout />}>
+      {/* MAIN LAYOUT */}
+      <Route path="/" element={<Layout />}>
 
-          {/* Main Pages */}
-          <Route index element={<Home />} />
-          <Route path="ask" element={<Ask />} />
-          <Route path="about" element={<About />} />
-          <Route path="profile" element={<Profile />} />
+        <Route index element={<Home />} />
+        <Route path="ask" element={<Ask />} />
+        <Route path="about" element={<About />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="questions/:id" element={<QuestionDetails />} />
+        <Route path="*" element={<NotFound />} />
 
-          {/* Question Details */}
-          <Route path="questions/:id" element={<QuestionDetails />} />
+      </Route>
 
-          {/* 404 Catch All */}
-          <Route path="*" element={<NotFound />} />
-
-        </Route>
-
-      </Routes>
-    </BrowserRouter>
+    </Routes>
   );
 }
