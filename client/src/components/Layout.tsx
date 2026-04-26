@@ -1,55 +1,33 @@
-import {
-  NavLink,
-  Outlet,
-  useNavigate,
-  Navigate,
-} from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 export default function Layout() {
   const navigate = useNavigate();
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   /* ================= AUTH ================= */
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [username, setUsername] = useState<string>("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
-    try {
-      const storedUsername = localStorage.getItem("username");
+    const storedUsername = localStorage.getItem("username");
 
-      if (storedUsername && storedUsername.trim() !== "") {
-        setUsername(storedUsername);
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
-      }
-    } catch (error) {
-      console.error("Auth error:", error);
+    if (storedUsername && storedUsername.trim() !== "") {
+      setUsername(storedUsername);
+      setIsAuthenticated(true);
+    } else {
       setIsAuthenticated(false);
+      navigate("/login");
     }
-  }, []);
 
-  if (isAuthenticated === null) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white text-xl">
-        Loading...
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  /* ================= UI STATE ================= */
-
-  const [dark, setDark] = useState<boolean>(true);
-  const [menuOpen, setMenuOpen] = useState<boolean>(false);
-  const [mobileOpen, setMobileOpen] = useState<boolean>(false);
+    setCheckingAuth(false);
+  }, [navigate]);
 
   /* ================= THEME ================= */
+
+  const [dark, setDark] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -78,6 +56,18 @@ export default function Layout() {
       ? username.charAt(0).toUpperCase()
       : "U";
 
+  /* ================= LOADING SCREEN ================= */
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white text-xl">
+        Loading Opal Zeta...
+      </div>
+    );
+  }
+
+  /* ================= MAIN UI ================= */
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-800 text-white">
 
@@ -94,10 +84,21 @@ export default function Layout() {
 
           <nav className="hidden md:flex items-center gap-6 text-sm">
 
-            <NavLink to="/">Home</NavLink>
-            <NavLink to="/ask">Ask</NavLink>
-            <NavLink to="/about">About</NavLink>
-            <NavLink to="/profile">Profile</NavLink>
+            <NavLink to="/" className="hover:text-indigo-400">
+              Home
+            </NavLink>
+
+            <NavLink to="/ask" className="hover:text-indigo-400">
+              Ask
+            </NavLink>
+
+            <NavLink to="/about" className="hover:text-indigo-400">
+              About
+            </NavLink>
+
+            <NavLink to="/profile" className="hover:text-indigo-400">
+              Profile
+            </NavLink>
 
             <button
               onClick={() => setDark(!dark)}
@@ -119,6 +120,7 @@ export default function Layout() {
 
           </nav>
 
+          {/* MOBILE BUTTON */}
           <button
             className="md:hidden"
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -127,6 +129,7 @@ export default function Layout() {
           </button>
         </div>
 
+        {/* MOBILE MENU */}
         {mobileOpen && (
           <div className="md:hidden px-6 py-4 bg-slate-900 space-y-3">
             <NavLink to="/">Home</NavLink>
@@ -142,7 +145,7 @@ export default function Layout() {
 
       {/* MAIN CONTENT */}
       <main className="flex-grow max-w-6xl mx-auto px-6 py-10 w-full">
-        <Outlet />
+        {isAuthenticated && <Outlet />}
       </main>
 
       {/* FOOTER */}
@@ -152,4 +155,4 @@ export default function Layout() {
 
     </div>
   );
-    } 
+}
