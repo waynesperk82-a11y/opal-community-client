@@ -24,6 +24,15 @@ export default function Layout() {
     setCheckingAuth(false);
   }, [navigate]);
 
+  /* ================= PROFILE IMAGE ================= */
+
+  const [profileImage, setProfileImage] = useState<string>("");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("profileImage");
+    if (saved) setProfileImage(saved);
+  }, []);
+
   /* ================= THEME ================= */
 
   const [dark, setDark] = useState(true);
@@ -114,9 +123,20 @@ export default function Layout() {
               Logout
             </button>
 
-            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-pink-500 flex items-center justify-center font-bold">
-              {firstLetter}
-            </div>
+            {/* PROFILE IMAGE OR LETTER */}
+            <NavLink to="/profile">
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="w-8 h-8 rounded-full object-cover border border-white"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-pink-500 flex items-center justify-center font-bold">
+                  {firstLetter}
+                </div>
+              )}
+            </NavLink>
 
           </nav>
 
@@ -145,7 +165,9 @@ export default function Layout() {
 
       {/* MAIN CONTENT */}
       <main className="flex-grow max-w-6xl mx-auto px-6 py-10 w-full">
-        {isAuthenticated && <Outlet />}
+        {isAuthenticated && (
+          <Outlet context={{ setProfileImage }} />
+        )}
       </main>
 
       {/* FOOTER */}
