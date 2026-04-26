@@ -1,199 +1,114 @@
-import {
-  NavLink,
-  Outlet,
-  useNavigate,
-  Navigate,
-} from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 export default function Layout() {
-  const navigate = useNavigate();
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  /* ================= AUTH (SYNC FIX) ================= */
-
-  const storedUsername = localStorage.getItem("username");
-
-  if (!storedUsername) {
-    return <Navigate to="/login" replace />;
-  }
-
-  const username = storedUsername;
-
-  /* ================= UI STATE ================= */
-
-  const [dark, setDark] = useState(true);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  /* ================= LOAD SETTINGS ================= */
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    const savedImage = localStorage.getItem("profileImage");
-
-    if (savedTheme === "light") setDark(false);
-    if (savedImage) setProfileImage(savedImage);
-  }, []);
-
-  /* ================= DARK MODE ================= */
+  const [username, setUsername] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (dark) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
+    const storedUser = localStorage.getItem("username");
+    if (!storedUser) {
+      navigate("/login");
     } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
+      setUsername(storedUser);
     }
-  }, [dark]);
+  }, [navigate]);
 
-  /* ================= CLOSE DROPDOWN ================= */
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  /* ================= USER INITIALS ================= */
-
-  const initials = username
-    .split(" ")
-    .map((word) => word[0])
-    .join("")
-    .toUpperCase();
-
-  /* ================= LOGOUT ================= */
-
-  const handleLogout = () => {
+  const logout = () => {
     localStorage.removeItem("username");
-    localStorage.removeItem("profileImage");
     navigate("/login");
   };
 
-  const navStyle = ({ isActive }: { isActive: boolean }) =>
-    `relative px-3 py-2 rounded-lg transition-all duration-300 ${
+  const navStyle = ({ isActive }: any) =>
+    `block px-4 py-2 rounded-xl transition ${
       isActive
-        ? "text-white bg-gradient-to-r from-indigo-500 to-pink-500 shadow-lg"
-        : "hover:text-indigo-400"
+        ? "bg-gradient-to-r from-indigo-500 to-pink-500 text-white"
+        : "text-gray-300 hover:bg-white/10"
     }`;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-800 text-white transition-all duration-500">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white">
 
-      {/* ================= NAVBAR ================= */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/5 border-b border-white/10 shadow-xl">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      {/* NAVBAR */}
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/5 border-b border-white/10">
+        <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
 
           {/* LOGO */}
-          <NavLink
-            to="/"
-            className="text-3xl font-extrabold tracking-wide bg-gradient-to-r from-indigo-400 to-pink-500 bg-clip-text text-transparent hover:scale-105 transition"
+          <h1
+            onClick={() => navigate("/")}
+            className="text-2xl font-extrabold cursor-pointer bg-gradient-to-r from-indigo-400 to-pink-500 bg-clip-text text-transparent"
           >
             Opal Zeta
-          </NavLink>
+          </h1>
 
           {/* DESKTOP NAV */}
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-
+          <nav className="hidden md:flex items-center space-x-4">
             <NavLink to="/" className={navStyle}>Home</NavLink>
             <NavLink to="/ask" className={navStyle}>Ask</NavLink>
             <NavLink to="/about" className={navStyle}>About</NavLink>
+            <NavLink to="/profile" className={navStyle}>Profile</NavLink>
+          </nav>
+
+          {/* PROFILE AREA */}
+          <div className="hidden md:flex items-center space-x-4">
+            <span className="text-sm text-gray-400">
+              Hi, {username}
+            </span>
 
             <button
-              onClick={() => setDark(!dark)}
-              className="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 transition text-xs shadow-md"
+              onClick={logout}
+              className="px-4 py-2 rounded-xl bg-red-600/70 hover:bg-red-600 transition"
             >
-              {dark ? "☀ Light" : "🌙 Dark"}
+              Logout
             </button>
-
-            {/* PROFILE */}
-            <div className="relative" ref={dropdownRef}>
-              <div
-                onClick={() => setMenuOpen(!menuOpen)}
-                className="cursor-pointer"
-              >
-                {profileImage ? (
-                  <img
-                    src={profileImage}
-                    alt="Profile"
-                    className="w-10 h-10 rounded-full border-2 border-indigo-400 hover:scale-105 transition"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-pink-500 flex items-center justify-center font-bold hover:scale-105 transition">
-                    {initials}
-                  </div>
-                )}
-              </div>
-
-              {menuOpen && (
-                <div className="absolute right-0 mt-3 w-48 bg-slate-800 rounded-xl shadow-2xl border border-white/10 overflow-hidden">
-                  <button
-                    onClick={() => {
-                      navigate("/profile");
-                      setMenuOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-3 hover:bg-indigo-500 hover:text-white transition"
-                  >
-                    Profile
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-3 hover:bg-red-500 hover:text-white transition"
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-
-          </nav>
+          </div>
 
           {/* MOBILE MENU BUTTON */}
           <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden text-white text-2xl"
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden text-2xl"
           >
             ☰
           </button>
         </div>
 
-        {/* MOBILE NAV */}
-        {mobileOpen && (
-          <div className="md:hidden bg-slate-800 border-t border-white/10 px-6 py-4 space-y-4">
-            <NavLink to="/" className="block">Home</NavLink>
-            <NavLink to="/ask" className="block">Ask</NavLink>
-            <NavLink to="/about" className="block">About</NavLink>
-            <button onClick={handleLogout} className="block text-red-400">
+        {/* MOBILE DROPDOWN */}
+        {menuOpen && (
+          <div className="md:hidden px-6 pb-6 space-y-3 animate-fadeIn">
+            <NavLink to="/" className={navStyle} onClick={() => setMenuOpen(false)}>Home</NavLink>
+            <NavLink to="/ask" className={navStyle} onClick={() => setMenuOpen(false)}>Ask</NavLink>
+            <NavLink to="/about" className={navStyle} onClick={() => setMenuOpen(false)}>About</NavLink>
+            <NavLink to="/profile" className={navStyle} onClick={() => setMenuOpen(false)}>Profile</NavLink>
+
+            <button
+              onClick={logout}
+              className="w-full text-left px-4 py-2 rounded-xl bg-red-600/70"
+            >
               Logout
             </button>
           </div>
         )}
       </header>
 
-      {/* ================= MAIN ================= */}
-      <main className="flex-grow max-w-6xl mx-auto px-6 py-12 w-full">
-        <Outlet context={{ setProfileImage }} />
+      {/* MAIN CONTENT */}
+      <main className="max-w-7xl mx-auto px-6 py-12">
+        <Outlet />
       </main>
 
-      {/* ================= FOOTER ================= */}
-      <footer className="border-t border-white/10 bg-white/5 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-6 py-6 text-center text-sm text-gray-400">
-          © {new Date().getFullYear()} Opal Zeta. Built with ❤️
+      {/* FOOTER */}
+      <footer className="border-t border-white/10 bg-white/5 backdrop-blur-xl mt-16">
+        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm">
+          <p>© {new Date().getFullYear()} Opal Zeta</p>
+
+          <div className="flex space-x-6 mt-4 md:mt-0">
+            <span className="hover:text-white cursor-pointer">Privacy</span>
+            <span className="hover:text-white cursor-pointer">Terms</span>
+            <span className="hover:text-white cursor-pointer">Support</span>
+          </div>
         </div>
       </footer>
 
     </div>
   );
-  }
+}
