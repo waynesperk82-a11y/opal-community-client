@@ -1,89 +1,145 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
+interface Question {
+  _id: string;
+  title: string;
+  author: string;
+  image?: string;
+  createdAt?: string;
+}
 
 export default function Home() {
-  const [time, setTime] = useState(new Date());
-  const [quote, setQuote] = useState("");
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const quotes = [
-    "Success starts with self-belief.",
-    "Consistency beats motivation.",
-    "Your only limit is your mind.",
-    "Build. Break. Improve. Repeat.",
-    "Dream big. Start small. Act now."
-  ];
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+
+  const fetchQuestions = async () => {
+    try {
+      const res = await fetch(
+        "https://opal-community-zeta.onrender.com/questions"
+      );
+      const data = await res.json();
+      setQuestions(data.reverse());
+    } catch (err) {
+      console.log("Failed to fetch questions");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTime(new Date());
-    }, 1000);
-
-    const randomQuote =
-      quotes[Math.floor(Math.random() * quotes.length)];
-
-    setTimeout(() => {
-      setQuote(randomQuote);
-      setLoading(false);
-    }, 1000);
-
-    return () => clearInterval(timer);
+    fetchQuestions();
   }, []);
 
-  return (
-    <div className="space-y-10">
+  const handleQuickPost = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-      {/* HERO SECTION */}
+    if (!title || !author) return;
+
+    await fetch("https://opal-community-zeta.onrender.com/questions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, author }),
+    });
+
+    setTitle("");
+    setAuthor("");
+    fetchQuestions();
+  };
+
+  return (
+    <div className="space-y-16">
+
+      {/* HERO */}
       <section className="text-center space-y-6">
         <h1 className="text-5xl font-extrabold bg-gradient-to-r from-indigo-400 to-pink-500 bg-clip-text text-transparent">
-          Welcome to Opal Zeta 
+          Opal Zeta Community 🚀
         </h1>
-
-        <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-          Your intelligent web platform built with modern React, 
-          Tailwind, and deployed on Vercel.
+        <p className="text-gray-300 max-w-2xl mx-auto">
+          Ask questions. Share knowledge. Build together.
         </p>
-
-        <div className="text-2xl font-mono bg-white/10 px-6 py-3 rounded-xl inline-block shadow-lg">
-          {time.toLocaleTimeString()}
-        </div>
       </section>
 
-      {/* QUOTE SECTION */}
-      <section className="bg-white/5 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-white/10 text-center">
-        <h2 className="text-2xl font-bold mb-4">Daily Inspiration</h2>
+      {/* QUICK POST */}
+      <section className="bg-white/5 backdrop-blur-xl p-8 rounded-3xl shadow-xl border border-white/10">
+        <h2 className="text-2xl font-bold mb-6">Post a Quick Question</h2>
+
+        <form onSubmit={handleQuickPost} className="space-y-4">
+          <input
+            type="text"
+            placeholder="Your Name"
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+            className="w-full p-3 rounded-xl bg-white/20 text-white"
+          />
+
+          <input
+            type="text"
+            placeholder="Your Question"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full p-3 rounded-xl bg-white/20 text-white"
+          />
+
+          <button
+            type="submit"
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-pink-500 font-semibold hover:scale-105 transition"
+          >
+            Post Now
+          </button>
+        </form>
+      </section>
+
+      {/* QUESTION FEED */}
+      <section className="space-y-6">
+        <h2 className="text-3xl font-bold">Latest Questions</h2>
 
         {loading ? (
-          <p className="animate-pulse text-gray-400">
-            Loading inspiration...
-          </p>
+          <p className="text-gray-400">Loading questions...</p>
+        ) : questions.length === 0 ? (
+          <p className="text-gray-400">No questions yet.</p>
         ) : (
-          <p className="text-lg text-indigo-300 font-medium">
-            "{quote}"
-          </p>
+          <div className="grid md:grid-cols-2 gap-6">
+            {questions.map((q) => (
+              <Link
+                key={q._id}
+                to={`/questions/${q._id}`}
+                className="bg-gradient-to-br from-indigo-600/20 to-pink-600/20 p-6 rounded-2xl border border-white/10 shadow-lg hover:scale-105 transition"
+              >
+                <h3 className="text-xl font-bold mb-2">{q.title}</h3>
+                <p className="text-gray-400 text-sm">
+                  Asked by {q.author}
+                </p>
+              </Link>
+            ))}
+          </div>
         )}
       </section>
 
-      {/* FEATURE GRID */}
+      {/* PLATFORM INFO */}
       <section className="grid md:grid-cols-3 gap-8">
 
-        <div className="bg-gradient-to-br from-indigo-600/30 to-indigo-900/40 p-6 rounded-2xl shadow-lg hover:scale-105 transition">
-          <h3 className="text-xl font-bold mb-2"> Fast</h3>
+        <div className="bg-indigo-700/30 p-6 rounded-2xl shadow-lg">
+          <h3 className="text-xl font-bold mb-2">⚡ Fast</h3>
           <p className="text-gray-300">
-            Optimized performance and smooth navigation experience.
+            Real-time question updates and modern architecture.
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-pink-600/30 to-pink-900/40 p-6 rounded-2xl shadow-lg hover:scale-105 transition">
-          <h3 className="text-xl font-bold mb-2">Secure</h3>
+        <div className="bg-pink-700/30 p-6 rounded-2xl shadow-lg">
+          <h3 className="text-xl font-bold mb-2">🔒 Secure</h3>
           <p className="text-gray-300">
-            Authentication powered with protected routes.
+            Authentication and protected routes enabled.
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-600/30 to-purple-900/40 p-6 rounded-2xl shadow-lg hover:scale-105 transition">
-          <h3 className="text-xl font-bold mb-2">Modern</h3>
+        <div className="bg-purple-700/30 p-6 rounded-2xl shadow-lg">
+          <h3 className="text-xl font-bold mb-2">🌍 Community</h3>
           <p className="text-gray-300">
-            Beautiful UI built using Tailwind CSS.
+            Built for collaboration and knowledge sharing.
           </p>
         </div>
 
@@ -91,4 +147,4 @@ export default function Home() {
 
     </div>
   );
-      }
+  }
