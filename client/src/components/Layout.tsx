@@ -10,9 +10,9 @@ export default function Layout() {
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  /* ---------------- AUTH STATE ---------------- */
+  /* ================= AUTH ================= */
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [username, setUsername] = useState("");
 
   useEffect(() => {
@@ -20,30 +20,41 @@ export default function Layout() {
     if (storedUsername) {
       setUsername(storedUsername);
       setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
     }
   }, []);
+
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white text-xl">
+        Loading Opal Zeta...
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  /* ---------------- UI STATE ---------------- */
+  /* ================= UI STATE ================= */
 
   const [dark, setDark] = useState(true);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  /* ---------------- LOAD SETTINGS ---------------- */
+  /* ================= LOAD SETTINGS ================= */
 
   useEffect(() => {
-    const savedImage = localStorage.getItem("profileImage");
     const savedTheme = localStorage.getItem("theme");
+    const savedImage = localStorage.getItem("profileImage");
 
-    if (savedImage) setProfileImage(savedImage);
     if (savedTheme === "light") setDark(false);
+    if (savedImage) setProfileImage(savedImage);
   }, []);
 
-  /* ---------------- DARK MODE ---------------- */
+  /* ================= DARK MODE ================= */
 
   useEffect(() => {
     if (dark) {
@@ -55,7 +66,7 @@ export default function Layout() {
     }
   }, [dark]);
 
-  /* ---------------- CLOSE DROPDOWN ---------------- */
+  /* ================= CLOSE DROPDOWN ================= */
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -72,7 +83,7 @@ export default function Layout() {
       document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  /* ---------------- USER INITIALS ---------------- */
+  /* ================= USER INITIALS ================= */
 
   const initials = username
     .split(" ")
@@ -80,58 +91,46 @@ export default function Layout() {
     .join("")
     .toUpperCase();
 
-  /* ---------------- LOGOUT ---------------- */
+  /* ================= LOGOUT ================= */
 
   const handleLogout = () => {
     localStorage.removeItem("username");
     localStorage.removeItem("profileImage");
-    setMenuOpen(false);
     navigate("/login");
   };
 
-  /* ---------------- NAV STYLE ---------------- */
-
   const navStyle = ({ isActive }: { isActive: boolean }) =>
-    `relative px-2 py-1 transition ${
+    `relative px-3 py-2 rounded-lg transition-all duration-300 ${
       isActive
-        ? "text-indigo-500 font-semibold after:absolute after:-bottom-1 after:left-0 after:w-full after:h-[2px] after:bg-gradient-to-r after:from-indigo-500 after:to-pink-500"
+        ? "text-white bg-gradient-to-r from-indigo-500 to-pink-500 shadow-lg"
         : "hover:text-indigo-400"
     }`;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gradient-to-br dark:from-slate-900 dark:via-indigo-900 dark:to-slate-800 text-gray-900 dark:text-white transition-colors duration-500">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-800 text-white transition-all duration-500">
 
-      {/* NAVBAR */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-white/5 border-b border-gray-200 dark:border-white/10 shadow-lg">
+      {/* ================= NAVBAR ================= */}
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/5 border-b border-white/10 shadow-xl">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
 
           {/* LOGO */}
           <NavLink
             to="/"
-            className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-indigo-500 to-pink-500 bg-clip-text text-transparent hover:scale-105 transition-transform"
+            className="text-3xl font-extrabold tracking-wide bg-gradient-to-r from-indigo-400 to-pink-500 bg-clip-text text-transparent hover:scale-105 transition"
           >
             Opal Zeta
           </NavLink>
 
-          {/* NAVIGATION */}
-          <nav className="flex items-center gap-8 text-sm font-medium relative">
+          {/* DESKTOP NAV */}
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
 
-            <NavLink to="/" className={navStyle}>
-              Home
-            </NavLink>
+            <NavLink to="/" className={navStyle}>Home</NavLink>
+            <NavLink to="/ask" className={navStyle}>Ask</NavLink>
+            <NavLink to="/about" className={navStyle}>About</NavLink>
 
-            <NavLink to="/ask" className={navStyle}>
-              Ask
-            </NavLink>
-
-            <NavLink to="/about" className={navStyle}>
-              About
-            </NavLink>
-
-            {/* DARK MODE */}
             <button
               onClick={() => setDark(!dark)}
-              className="px-3 py-2 rounded-xl bg-indigo-500 text-white hover:bg-indigo-600 transition text-xs shadow-md"
+              className="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 transition text-xs shadow-md"
             >
               {dark ? "☀ Light" : "🌙 Dark"}
             </button>
@@ -145,28 +144,23 @@ export default function Layout() {
                 {profileImage ? (
                   <img
                     src={profileImage}
-                    alt="Profile"
-                    className="w-10 h-10 rounded-full object-cover border-2 border-indigo-500 hover:scale-105 transition"
+                    className="w-10 h-10 rounded-full border-2 border-indigo-400 hover:scale-105 transition"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-pink-500 flex items-center justify-center text-white font-bold hover:scale-105 transition">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-pink-500 flex items-center justify-center font-bold hover:scale-105 transition">
                     {initials}
                   </div>
                 )}
               </div>
 
               {menuOpen && (
-                <div className="absolute right-0 mt-3 w-44 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden">
+                <div className="absolute right-0 mt-3 w-48 bg-slate-800 rounded-xl shadow-2xl border border-white/10 overflow-hidden animate-fadeIn">
                   <button
-                    onClick={() => {
-                      navigate("/profile");
-                      setMenuOpen(false);
-                    }}
+                    onClick={() => navigate("/profile")}
                     className="w-full text-left px-4 py-3 hover:bg-indigo-500 hover:text-white transition"
                   >
                     Profile
                   </button>
-
                   <button
                     onClick={handleLogout}
                     className="w-full text-left px-4 py-3 hover:bg-red-500 hover:text-white transition"
@@ -178,29 +172,41 @@ export default function Layout() {
             </div>
 
           </nav>
+
+          {/* MOBILE MENU BUTTON */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden text-white text-2xl"
+          >
+            ☰
+          </button>
         </div>
+
+        {/* MOBILE NAV */}
+        {mobileOpen && (
+          <div className="md:hidden bg-slate-800 border-t border-white/10 px-6 py-4 space-y-4">
+            <NavLink to="/" className="block">Home</NavLink>
+            <NavLink to="/ask" className="block">Ask</NavLink>
+            <NavLink to="/about" className="block">About</NavLink>
+            <button onClick={handleLogout} className="block text-red-400">
+              Logout
+            </button>
+          </div>
+        )}
       </header>
 
-      {/* MAIN */}
-      <main className="flex-grow max-w-6xl mx-auto px-6 py-10 w-full">
+      {/* ================= MAIN ================= */}
+      <main className="flex-grow max-w-6xl mx-auto px-6 py-12 w-full animate-fadeIn">
         <Outlet context={{ setProfileImage }} />
       </main>
 
-      {/* FOOTER */}
-      <footer className="border-t border-gray-200 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-6 py-6 text-center text-sm">
-          © {new Date().getFullYear()} Opal Zeta. All rights reserved.
-          <br />
-          Contact:{" "}
-          <a
-            href="mailto:opalzeta172@gmail.com"
-            className="text-indigo-500 hover:text-pink-500 transition"
-          >
-            opalzeta172@gmail.com
-          </a>
+      {/* ================= FOOTER ================= */}
+      <footer className="border-t border-white/10 bg-white/5 backdrop-blur-md">
+        <div className="max-w-6xl mx-auto px-6 py-6 text-center text-sm text-gray-400">
+          © {new Date().getFullYear()} Opal Zeta. Built with ❤️
         </div>
       </footer>
 
     </div>
   );
-}
+  }
