@@ -178,26 +178,58 @@ export default function Layout() {
           </div>
         </div>
 
-        {/* MOBILE DROPDOWN */}
-        {mobileOpen && (
-          <div className="md:hidden absolute top-full mt-3 w-[90%] 
-          bg-slate-900/95 backdrop-blur-xl border border-white/10 
-          rounded-2xl p-6 space-y-4 text-center">
+ {/* MOBILE MENU */}
+{mobileOpen && (
+  <div className="md:hidden px-6 pb-6 pt-2 bg-slate-900/95 backdrop-blur-xl rounded-b-3xl animate-fadeIn">
 
-            <NavLink to="/" onClick={() => setMobileOpen(false)}>Home</NavLink>
-            <NavLink to="/ask" onClick={() => setMobileOpen(false)}>Ask</NavLink>
-            <NavLink to="/about" onClick={() => setMobileOpen(false)}>About</NavLink>
-            <NavLink to="/profile" onClick={() => setMobileOpen(false)}>Profile</NavLink>
+    <div className="flex flex-col gap-4 text-lg font-medium">
 
-            <button
-              onClick={logout}
-              className="block w-full bg-red-600 py-2 rounded-xl"
-            >
-              Logout
-            </button>
+      <NavLink
+        to="/"
+        onClick={() => setMobileOpen(false)}
+        className="py-2 border-b border-white/10 hover:text-indigo-400 transition"
+      >
+        Home
+      </NavLink>
 
-          </div>
-        )}
+      <NavLink
+        to="/ask"
+        onClick={() => setMobileOpen(false)}
+        className="py-2 border-b border-white/10 hover:text-indigo-400 transition"
+      >
+        Ask
+      </NavLink>
+
+      <NavLink
+        to="/about"
+        onClick={() => setMobileOpen(false)}
+        className="py-2 border-b border-white/10 hover:text-indigo-400 transition"
+      >
+        About
+      </NavLink>
+
+      <NavLink
+        to="/profile"
+        onClick={() => setMobileOpen(false)}
+        className="py-2 border-b border-white/10 hover:text-indigo-400 transition"
+      >
+        Profile
+      </NavLink>
+
+      <button
+        onClick={() => {
+          logout();
+          setMobileOpen(false);
+        }}
+        className="mt-4 bg-red-600 hover:bg-red-700 transition py-3 rounded-xl font-semibold"
+      >
+        Logout
+      </button>
+
+    </div>
+
+  </div>
+)}
       </header>
 
       {/* CONTENT */}
