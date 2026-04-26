@@ -10,32 +10,15 @@ export default function Layout() {
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  /* ================= AUTH ================= */
+  /* ================= AUTH (SYNC FIX) ================= */
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [username, setUsername] = useState("");
+  const storedUsername = localStorage.getItem("username");
 
-  useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
-    if (storedUsername) {
-      setUsername(storedUsername);
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
-  }, []);
-
-  if (isAuthenticated === null) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white text-xl">
-        Loading Opal Zeta...
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
+  if (!storedUsername) {
     return <Navigate to="/login" replace />;
   }
+
+  const username = storedUsername;
 
   /* ================= UI STATE ================= */
 
@@ -144,6 +127,7 @@ export default function Layout() {
                 {profileImage ? (
                   <img
                     src={profileImage}
+                    alt="Profile"
                     className="w-10 h-10 rounded-full border-2 border-indigo-400 hover:scale-105 transition"
                   />
                 ) : (
@@ -154,9 +138,12 @@ export default function Layout() {
               </div>
 
               {menuOpen && (
-                <div className="absolute right-0 mt-3 w-48 bg-slate-800 rounded-xl shadow-2xl border border-white/10 overflow-hidden animate-fadeIn">
+                <div className="absolute right-0 mt-3 w-48 bg-slate-800 rounded-xl shadow-2xl border border-white/10 overflow-hidden">
                   <button
-                    onClick={() => navigate("/profile")}
+                    onClick={() => {
+                      navigate("/profile");
+                      setMenuOpen(false);
+                    }}
                     className="w-full text-left px-4 py-3 hover:bg-indigo-500 hover:text-white transition"
                   >
                     Profile
@@ -196,7 +183,7 @@ export default function Layout() {
       </header>
 
       {/* ================= MAIN ================= */}
-      <main className="flex-grow max-w-6xl mx-auto px-6 py-12 w-full animate-fadeIn">
+      <main className="flex-grow max-w-6xl mx-auto px-6 py-12 w-full">
         <Outlet context={{ setProfileImage }} />
       </main>
 
