@@ -12,13 +12,15 @@ type Question = {
   title: string;
   author: string;
   image?: string;
-  answers: Answer[];
+  answers?: Answer[];
 };
 
 export default function QuestionDetails() {
   const { id } = useParams();
+
   const [question, setQuestion] = useState<Question | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [answerAuthor, setAnswerAuthor] = useState("");
   const [answerContent, setAnswerContent] = useState("");
@@ -26,61 +28,106 @@ export default function QuestionDetails() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [zoomed, setZoomed] = useState(false);
 
-  const fetchQuestion = () => {
-    fetch(`https://opal-community-zeta.onrender.com/questions/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setQuestion(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
+  // ✅ SAFE FETCH FUNCTION
+  const fetchQuestion = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await fetch(
+        `https://opal-community-zeta.onrender.com/questions/${id}`
+      );
+
+      if (!res.ok) {
+        throw new Error("Question not found");
+      }
+
+      const data = await res.json();
+
+      if (data && typeof data === "object") {
+        setQuestion({
+          ...data,
+          answers: Array.isArray(data.answers) ? data.answers : [],
+        });
+      } else {
+        setQuestion(null);
+        setError("Invalid data received.");
+      }
+    } catch (err) {
+      console.error(err);
+      setQuestion(null);
+      setError("Failed to load question.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    fetchQuestion();
+    if (id) {
+      fetchQuestion();
+    }
   }, [id]);
 
+  // ✅ SAFE ANSWER SUBMIT
   const handleAnswerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    await fetch(
-      `https://opal-community-zeta.onrender.com/questions/${id}/answers`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          author: answerAuthor,
-          content: answerContent,
-        }),
-      }
-    );
+    if (!answerAuthor.trim() || !answerContent.trim()) return;
 
-    setAnswerAuthor("");
-    setAnswerContent("");
-    fetchQuestion();
+    try {
+      await fetch(
+        `https://opal-community-zeta.onrender.com/questions/${id}/answers`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            author: answerAuthor,
+            content: answerContent,
+          }),
+        }
+      );
+
+      setAnswerAuthor("");
+      setAnswerContent("");
+      fetchQuestion();
+    } catch (err) {
+      console.error("Failed to submit answer");
+    }
   };
 
+  // ✅ LOADING STATE
   if (loading) {
     return (
-      <div className="text-center text-gray-400 animate-pulse">
+      <div className="text-center text-gray-400 animate-pulse mt-20">
         Loading question...
       </div>
     );
   }
 
+  // ✅ ERROR STATE
+  if (error) {
+    return (
+      <div className="text-center text-red-400 mt-20">
+        {error}
+      </div>
+    );
+  }
+
+  // ✅ NOT FOUND STATE
   if (!question) {
-    return <p className="text-red-500 text-center">Question not found</p>;
+    return (
+      <div className="text-center text-red-500 mt-20">
+        Question not found.
+      </div>
+    );
   }
 
   return (
     <div className="max-w-5xl mx-auto space-y-14">
 
-      {/* HERO QUESTION SECTION */}
+      {/* HERO SECTION */}
       <div className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-10 rounded-3xl shadow-2xl text-white overflow-hidden">
 
         <h2 className="text-4xl font-bold leading-tight">
@@ -93,7 +140,7 @@ export default function QuestionDetails() {
           </p>
 
           <span className="bg-white/20 px-4 py-1 rounded-full text-sm backdrop-blur">
-            {question.answers.length} Answers
+            {question.answers?.length || 0} Answers
           </span>
         </div>
 
@@ -118,13 +165,13 @@ export default function QuestionDetails() {
           Community Answers
         </h3>
 
-        {question.answers.length === 0 && (
+        {(question.answers?.length || 0) === 0 && (
           <div className="bg-white/10 backdrop-blur-lg p-6 rounded-3xl border border-white/10 text-gray-400 text-center">
             No answers yet. Be the first to respond!
           </div>
         )}
 
-        {question.answers.map((answer, index) => (
+        {question.answers?.map((answer, index) => (
           <div
             key={answer._id || index}
             className="bg-white/10 backdrop-blur-xl border border-white/10 p-6 rounded-3xl shadow-lg hover:shadow-indigo-500/20 transition"
@@ -191,8 +238,8 @@ export default function QuestionDetails() {
             src={selectedImage}
             alt="Full"
             onClick={() => setZoomed(!zoomed)}
-            className={`max-h-[90%] max-w-[90%] rounded-3xl cursor-zoom-in transition-transform duration-300 ${
-              zoomed ? "scale-125 cursor-zoom-out" : "scale-100"
+            className={`max-h-[90%] max-w-[90%] rounded-3xl cursor-pointer transition-transform duration-300 ${
+              zoomed ? "scale-125" : "scale-100"
             }`}
           />
 
@@ -200,4 +247,4 @@ export default function QuestionDetails() {
       )}
     </div>
   );
-          }                
+                                 }
