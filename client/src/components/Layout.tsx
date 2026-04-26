@@ -12,29 +12,22 @@ export default function Layout() {
 
   /* ---------------- AUTH STATE ---------------- */
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [username, setUsername] = useState<string>("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
-
     if (storedUsername) {
       setUsername(storedUsername);
       setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
     }
   }, []);
-
-  if (isAuthenticated === null) {
-    return null; // prevents flashing before auth check
-  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  /* ---------------- STATE ---------------- */
+  /* ---------------- UI STATE ---------------- */
 
   const [dark, setDark] = useState(true);
   const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -92,7 +85,6 @@ export default function Layout() {
   const handleLogout = () => {
     localStorage.removeItem("username");
     localStorage.removeItem("profileImage");
-    setProfileImage(null);
     setMenuOpen(false);
     navigate("/login");
   };
@@ -163,7 +155,6 @@ export default function Layout() {
                 )}
               </div>
 
-              {/* DROPDOWN */}
               {menuOpen && (
                 <div className="absolute right-0 mt-3 w-44 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden">
                   <button
@@ -212,4 +203,4 @@ export default function Layout() {
 
     </div>
   );
-    }
+}
