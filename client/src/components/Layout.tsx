@@ -1,9 +1,8 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 export default function Layout() {
   const navigate = useNavigate();
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   /* ================= AUTH ================= */
 
@@ -18,6 +17,7 @@ export default function Layout() {
       setUsername(storedUsername);
       setIsAuthenticated(true);
     } else {
+      setIsAuthenticated(false);
       navigate("/login");
     }
 
@@ -52,22 +52,17 @@ export default function Layout() {
     }
   }, [dark]);
 
-  /* ================= DROPDOWN ================= */
+  /* ================= SCROLL ANIMATION ================= */
 
-  const [openDropdown, setOpenDropdown] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
-        setOpenDropdown(false);
-      }
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 30);
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   /* ================= MOBILE ================= */
@@ -82,7 +77,11 @@ export default function Layout() {
   };
 
   const firstLetter =
-    username?.length > 0 ? username.charAt(0).toUpperCase() : "U";
+    username && username.length > 0
+      ? username.charAt(0).toUpperCase()
+      : "U";
+
+  /* ================= LOADING ================= */
 
   if (checkingAuth) {
     return (
@@ -92,12 +91,20 @@ export default function Layout() {
     );
   }
 
-  return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white">
+  /* ================= UI ================= */
 
-      {/* ================= COOL NAVBAR ================= */}
-      <header className="sticky top-4 z-50 flex justify-center">
-        <div className="w-[95%] max-w-7xl backdrop-blur-2xl bg-white/5 border border-white/10 rounded-2xl shadow-2xl px-8 py-4 flex justify-between items-center">
+  return (
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-800 text-white">
+
+      {/* NAVBAR */}
+      <header
+        className={`fixed top-0 left-0 w-full z-50 flex justify-center transition-all duration-500 ${
+          scrolled
+            ? "py-3 backdrop-blur-2xl bg-slate-900/80 shadow-2xl"
+            : "py-6 bg-transparent"
+        }`}
+      >
+        <div className="w-[95%] max-w-7xl border border-white/10 rounded-2xl px-8 flex justify-between items-center transition-all duration-500">
 
           {/* LOGO */}
           <div
@@ -110,25 +117,43 @@ export default function Layout() {
           {/* DESKTOP NAV */}
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
 
-            {["/", "/ask", "/about"].map((path, i) => {
-              const labels = ["Home", "Ask", "About"];
-              return (
-                <NavLink
-                  key={i}
-                  to={path}
-                  className={({ isActive }) =>
-                    `relative group transition ${
-                      isActive ? "text-indigo-400" : ""
-                    }`
-                  }
-                >
-                  {labels[i]}
-                  <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-indigo-400 to-pink-500 transition-all group-hover:w-full"></span>
-                </NavLink>
-              );
-            })}
+            <NavLink
+              to="/"
+              className={({ isActive }) =>
+                `relative group ${
+                  isActive ? "text-indigo-400" : ""
+                }`
+              }
+            >
+              Home
+              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-indigo-400 to-pink-500 transition-all group-hover:w-full"></span>
+            </NavLink>
 
-            {/* THEME BUTTON */}
+            <NavLink
+              to="/ask"
+              className={({ isActive }) =>
+                `relative group ${
+                  isActive ? "text-indigo-400" : ""
+                }`
+              }
+            >
+              Ask
+              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-indigo-400 to-pink-500 transition-all group-hover:w-full"></span>
+            </NavLink>
+
+            <NavLink
+              to="/about"
+              className={({ isActive }) =>
+                `relative group ${
+                  isActive ? "text-indigo-400" : ""
+                }`
+              }
+            >
+              About
+              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-indigo-400 to-pink-500 transition-all group-hover:w-full"></span>
+            </NavLink>
+
+            {/* THEME */}
             <button
               onClick={() => setDark(!dark)}
               className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-pink-500 text-white shadow-lg hover:scale-105 transition"
@@ -136,46 +161,28 @@ export default function Layout() {
               {dark ? "☀" : "🌙"}
             </button>
 
-            {/* PROFILE DROPDOWN */}
-            <div className="relative" ref={dropdownRef}>
-              <div
-                onClick={() => setOpenDropdown(!openDropdown)}
-                className="cursor-pointer"
-              >
-                {profileImage ? (
-                  <img
-                    src={profileImage}
-                    alt="Profile"
-                    className="w-10 h-10 rounded-full object-cover border-2 border-indigo-500 hover:scale-110 transition"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-pink-500 flex items-center justify-center font-bold hover:scale-110 transition">
-                    {firstLetter}
-                  </div>
-                )}
-              </div>
+            {/* LOGOUT */}
+            <button
+              onClick={logout}
+              className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 transition"
+            >
+              Logout
+            </button>
 
-              {openDropdown && (
-                <div className="absolute right-0 mt-4 w-48 bg-slate-800 border border-white/10 rounded-xl shadow-xl p-3 space-y-2 animate-fadeIn">
-                  <button
-                    onClick={() => {
-                      navigate("/profile");
-                      setOpenDropdown(false);
-                    }}
-                    className="block w-full text-left hover:text-indigo-400"
-                  >
-                    Profile
-                  </button>
-
-                  <button
-                    onClick={logout}
-                    className="block w-full text-left text-red-400 hover:text-red-500"
-                  >
-                    Logout
-                  </button>
+            {/* PROFILE */}
+            <NavLink to="/profile">
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-indigo-500 hover:scale-110 transition"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-pink-500 flex items-center justify-center font-bold hover:scale-110 transition">
+                  {firstLetter}
                 </div>
               )}
-            </div>
+            </NavLink>
 
           </nav>
 
@@ -187,39 +194,47 @@ export default function Layout() {
             ☰
           </button>
         </div>
+
+        {/* MOBILE MENU */}
+        {mobileOpen && (
+          <div className="md:hidden w-full bg-slate-900/95 backdrop-blur-xl border-t border-white/10 mt-3 p-6 space-y-4 text-center">
+
+            <NavLink to="/" onClick={() => setMobileOpen(false)}>
+              Home
+            </NavLink>
+
+            <NavLink to="/ask" onClick={() => setMobileOpen(false)}>
+              Ask
+            </NavLink>
+
+            <NavLink to="/about" onClick={() => setMobileOpen(false)}>
+              About
+            </NavLink>
+
+            <NavLink to="/profile" onClick={() => setMobileOpen(false)}>
+              Profile
+            </NavLink>
+
+            <button
+              onClick={logout}
+              className="block w-full bg-red-600 py-2 rounded-xl"
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </header>
 
-      {/* MOBILE MENU */}
-      {mobileOpen && (
-        <div className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-xl flex flex-col items-center justify-center space-y-6 text-xl z-40">
-          <NavLink to="/" onClick={() => setMobileOpen(false)}>Home</NavLink>
-          <NavLink to="/ask" onClick={() => setMobileOpen(false)}>Ask</NavLink>
-          <NavLink to="/about" onClick={() => setMobileOpen(false)}>About</NavLink>
-          <NavLink to="/profile" onClick={() => setMobileOpen(false)}>Profile</NavLink>
-
-          <button onClick={logout} className="text-red-400">
-            Logout
-          </button>
-
-          <button
-            onClick={() => {
-              setDark(!dark);
-              setMobileOpen(false);
-            }}
-          >
-            Toggle Theme
-          </button>
-        </div>
-      )}
-
       {/* MAIN CONTENT */}
-      <main className="flex-grow max-w-6xl mx-auto px-6 py-16 w-full">
-        {isAuthenticated && <Outlet context={{ setProfileImage }} />}
+      <main className="flex-grow max-w-6xl mx-auto px-6 pt-32 pb-16 w-full">
+        {isAuthenticated && (
+          <Outlet context={{ setProfileImage }} />
+        )}
       </main>
 
       {/* FOOTER */}
-      <footer className="text-center py-6 text-gray-400 text-sm border-t border-white/10">
-        © {new Date().getFullYear()} Opal Zeta • Next Generation Community
+      <footer className="border-t border-white/10 bg-white/5 text-center py-4 text-sm text-gray-400">
+        © {new Date().getFullYear()} Opal Zeta
       </footer>
 
     </div>
